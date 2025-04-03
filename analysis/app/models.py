@@ -24,7 +24,7 @@ class File(Base):
     description = Column(String, nullable=True)
     dateCreated = Column(DateTime(timezone=True))
     path = Column(String, nullable=True)
-    mimeType = Column(String)
+    mimeType = Column(String, nullable=True)
     extension = Column(String)
     size = Column(Float)
     
@@ -44,7 +44,7 @@ class FileCreate(BaseModel):
     description: Optional[str] = None
     dateCreated: datetime.datetime
     path: str
-    mimeType: str
+    mimeType: Optional[str] = None
     extension: str
     size: float
     
