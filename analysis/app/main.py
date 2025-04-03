@@ -77,7 +77,7 @@ def process_volume(id: int, db: Session = Depends(get_db)):
     
     for volume in db_item:
         try:
-            process_directory(volume.path)
+            process_directory(volume.path, volume.id)
         except Exception as e:
             logging.error(f"Error processing directory {volume.path}: {e}")
         volume.dateScanned = datetime.now(timezone.utc)
