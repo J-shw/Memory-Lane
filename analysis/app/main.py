@@ -3,7 +3,9 @@ from sqlalchemy.orm import Session
 from models import SessionLocal, File, FileCreate, FileOut, Volume, VolumeCreate, VolumeOut
 from modules.process import process_directory
 from datetime import datetime, timezone
-import uvicorn
+import uvicorn, logging
+
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
 
@@ -54,10 +56,24 @@ def read_volume(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Volume not found")
     return db_item
 
-@app.get("/process")
-def process_files():
-    process_directory('/app/files')
-    return {"message": "Processing.."}
+@app.get("/process/volume/{id}")
+def process_volume(id: int, db: Session = Depends(get_db)):
+    if id:
+        db_item = db.query(Volume).filter(File.id == id).first()
+    else:
+        db_item = db.query(File).all()
+    
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="Volume not found")
+    
+    for volume in db_item:
+        try:
+            process_directory(volume.path)
+        except Exception as e:
+            logging.error(f"Error processing directory {volume.path}: {e}")
+        volume.dateScanned = datetime.now(timezone.utc)
+        db.commit()
+    return {"message": "Processing complete."}
 
 @app.get("/")
 async def root():
