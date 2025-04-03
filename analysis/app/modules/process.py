@@ -10,16 +10,26 @@ def get_file_metadata(file_path):
         stat = os.stat(file_path)
         name = os.path.basename(file_path)
         size = stat.st_size
-        date_created = datetime.datetime.fromtimestamp(stat.st_birthtime)
+        try:
+            date_created = datetime.datetime.fromtimestamp(stat.st_birthtime)
+        except AttributeError:
+            logging.warning(f"st_birthtime not available for {file_path}, using st_ctime")
+            date_created = datetime.datetime.fromtimestamp(stat.st_ctime)
+
         #date_modified = datetime.datetime.fromtimestamp(stat.st_mtime)
-        mime = magic.Magic(mime=True)
-        mime_type = mime.from_file(file_path)
+        try:
+            mime = magic.Magic(mime=True)
+            mime_type = mime.from_file(file_path)
+        except Exception as e:
+            logging.error(f"Error getting mime type for {file_path}: {e}")
+            mime_type = None
+
         extension = os.path.splitext(file_path)[1][1:] #Get extension without the .
         return {
             "name": name,
             "path": file_path,
             "size": size,
-            "dateCreated": date_created,
+            "dateCreated": date_created.isoformat(),
             "mimeType": mime_type,
             "extension": extension,
         }
@@ -28,6 +38,15 @@ def get_file_metadata(file_path):
         return None
 
 def process_directory(directory):
+
+    if not os.path.exists(directory):
+        logging.error(f"Directory not found: {directory}")
+        return 
+
+    if not os.path.isdir(directory):
+        logging.error(f"Not a directory: {directory}")
+        return
+
     for root, _, files in os.walk(directory):
         for file_name in files:
             file_path = os.path.join(root, file_name)
@@ -35,7 +54,7 @@ def process_directory(directory):
             if metadata:
                 try:
                     response = requests.post(API_ENDPOINT, json=metadata)
-                    response.raise_for_status() 
+                    response.raise_for_status()
                     logging.info(f"File {file_path} added successfully.")
                 except requests.exceptions.RequestException as e:
                     logging.error(f"Error adding file {file_path}: {e}")
