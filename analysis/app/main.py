@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from models import File, Statistics, FileCreate, FileOut, SessionLocal
-import modules.process as process
+from modules.process import process_directory
 from datetime import datetime, timezone
 import uvicorn
 
@@ -33,6 +33,11 @@ def read_file(event_id: int, db: Session = Depends(get_db)):
     if db_item is None:
         raise HTTPException(status_code=404, detail="File not found")
     return db_item
+
+@app.get("/process")
+def process_files():
+    process_directory()
+    return {"message": "Processing.."}
 
 @app.get("/")
 async def root():
