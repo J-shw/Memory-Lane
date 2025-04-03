@@ -57,8 +57,8 @@ def read_volume(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Volume not found")
     return db_item
 
-@app.post("/volume_stats/", response_model=VolumeStats)
-def create_volume_stats(volume_stats: VolumeStats, db: Session = Depends(get_db)):
+@app.post("/volume_stats/", response_model=VolumeStatsOut)
+def create_volume_stats(volume_stats: VolumeStatsCreate, db: Session = Depends(get_db)):
     db_volume_stats = VolumeStats(**volume_stats.dict())
     db.add(db_volume_stats)
     db.commit()
@@ -68,18 +68,19 @@ def create_volume_stats(volume_stats: VolumeStats, db: Session = Depends(get_db)
 @app.get("/process/volume/{id}")
 def process_volume(id: int, db: Session = Depends(get_db)):
     if id:
-        db_item = db.query(Volume).filter(File.id == id).first()
+        db_item = db.query(Volume).filter(Volume.id == id).first()
+        volumes = [db_item]
     else:
-        db_item = db.query(File).all()
+        volumes = db.query(Volume).all()
     
-    if db_item is None:
+    if volumes is None:
         raise HTTPException(status_code=404, detail="Volume not found")
     
-    for volume in db_item:
+    for volume in volumes:
         try:
-            process_directory(volume.path, volume.id)
+            process_directory(volume.mountPoint, volume.id)
         except Exception as e:
-            logging.error(f"Error processing directory {volume.path}: {e}")
+            logging.error(f"Error processing directory {volume.mountPoint}: {e}")
         volume.dateScanned = datetime.now(timezone.utc)
         db.commit()
     return {"message": "Processing complete."}
