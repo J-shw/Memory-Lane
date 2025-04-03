@@ -36,7 +36,7 @@ def read_file(event_id: int, db: Session = Depends(get_db)):
 
 @app.get("/process")
 def process_files():
-    process_directory()
+    process_directory('/files')
     return {"message": "Processing.."}
 
 @app.get("/")
