@@ -17,4 +17,5 @@ services:
     depends_on:
       - db
     volumes:
-      - /path/to/your/files:/app/files
+      - /file/path/one:/volumes/one
+      - /file/path/two:/volumes/two
