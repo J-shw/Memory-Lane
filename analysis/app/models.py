@@ -63,11 +63,11 @@ class FileOut(FileCreate):
 class VolumeCreate(BaseModel):
     name: str
     mountPoint: str
-    totalSize: float
-    freeSpace: float
-    usedSpace: float
-    totalFiles: int
-    totalFolders: int
+    totalSize: Optional[float] = None
+    freeSpace: Optional[float] = None
+    usedSpace: Optional[float] = None
+    totalFiles: Optional[int] = None
+    totalFolders: Optional[int] = None
 
 class VolumeOut(VolumeCreate):
     id: int
