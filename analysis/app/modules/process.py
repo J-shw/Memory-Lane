@@ -15,8 +15,7 @@ def get_file_metadata(file_path):
         except AttributeError:
             logging.warning(f"st_birthtime not available for {file_path}, using st_ctime")
             date_created = datetime.datetime.fromtimestamp(stat.st_ctime)
-
-        #date_modified = datetime.datetime.fromtimestamp(stat.st_mtime)
+        date_modified = datetime.datetime.fromtimestamp(stat.st_mtime)
         try:
             mime = magic.Magic(mime=True)
             mime_type = mime.from_file(file_path)
@@ -30,6 +29,7 @@ def get_file_metadata(file_path):
             "path": file_path,
             "size": size,
             "dateCreated": date_created.isoformat(),
+            "dateModified": date_modified.isoformat(),
             "mimeType": mime_type,
             "extension": extension,
         }
