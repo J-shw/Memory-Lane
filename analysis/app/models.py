@@ -19,6 +19,7 @@ class File(Base):
     __tablename__ = "files"
 
     id = Column(Integer, primary_key=True, index=True)
+    volumeId = Column(Integer, ForeignKey("volumes.id"))
     dateScanned = Column(DateTime(timezone=True), default=func.now())
     name = Column(String)
     dateCreated = Column(DateTime(timezone=True))
@@ -53,6 +54,7 @@ class VolumeStats(Base):
 Base.metadata.create_all(bind=engine)
 
 class FileCreate(BaseModel):
+    volumeId: int
     name: str
     dateCreated: datetime.datetime
     dateModified: datetime.datetime
