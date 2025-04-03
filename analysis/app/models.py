@@ -21,12 +21,12 @@ class File(Base):
     id = Column(Integer, primary_key=True, index=True)
     dateScanned = Column(DateTime(timezone=True), default=func.now())
     name = Column(String)
-    description = Column(String, nullable=True)
     dateCreated = Column(DateTime(timezone=True))
+    dateModified = Column(String, nullable=True)
     path = Column(String, nullable=True)
     mimeType = Column(String, nullable=True)
     extension = Column(String)
-    size = Column(Float)
+    size = Column(Float) #bytes
     
 
 class Statistics(Base):
@@ -41,8 +41,8 @@ Base.metadata.create_all(bind=engine)
 
 class FileCreate(BaseModel):
     name: str
-    description: Optional[str] = None
     dateCreated: datetime.datetime
+    dateModified: datetime.datetime
     path: str
     mimeType: Optional[str] = None
     extension: str
