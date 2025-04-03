@@ -29,11 +29,16 @@ class File(Base):
     size = Column(Float) #bytes
     
 
-class Statistics(Base):
-    __tablename__ = "statistics"
+class Volume(Base):
+    __tablename__ = "volumes"
 
     id = Column(Integer, primary_key=True, index=True)
-    totalStorageGB = Column(Float)
+    dateScanned = Column(DateTime(timezone=True), default=func.now())
+    name = Column(String)
+    mountPoint = Column(String) # /example/path
+    totalSize = Column(Float) #bytes
+    freeSpace = Column(Float) #bytes
+    usedSpace = Column(Float) #bytes
     totalFiles = Column(Integer)
     totalFolders = Column(Integer)
 
@@ -47,10 +52,24 @@ class FileCreate(BaseModel):
     mimeType: Optional[str] = None
     extension: str
     size: float
-    
-
 
 class FileOut(FileCreate):
+    id: int
+    dateScanned: datetime.datetime
+
+    class Config:
+        orm_mode = True
+
+class VolumeCreate(BaseModel):
+    name: str
+    mountPoint: str
+    totalSize: float
+    freeSpace: float
+    usedSpace: float
+    totalFiles: int
+    totalFolders: int
+
+class VolumeOut(VolumeCreate):
     id: int
     dateScanned: datetime.datetime
 
