@@ -8,7 +8,7 @@ import logging, uuid, datetime
 
 logging.basicConfig(level=logging.INFO)
 
-DATABASE_URL = f"postgresql://db/analysis"
+DATABASE_URL = f"postgresql://postgres:password@db:5432/analysis"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -23,8 +23,11 @@ class File(Base):
     name = Column(String)
     description = Column(String, nullable=True)
     dateCreated = Column(DateTime(timezone=True))
-    location = Column(String, nullable=True)
-    type = Column(String)
+    path = Column(String, nullable=True)
+    mimeType = Column(String)
+    extension = Column(String)
+    size = Column(Float)
+    
 
 class Statistics(Base):
     __tablename__ = "statistics"
@@ -40,8 +43,12 @@ class FileCreate(BaseModel):
     name: str
     description: Optional[str] = None
     dateCreated: datetime.datetime
-    location: Optional[str] = None
-    type: str
+    path: str
+    mimeType: str
+    extension: str
+    size: float
+    
+
 
 class FileOut(FileCreate):
     id: int
