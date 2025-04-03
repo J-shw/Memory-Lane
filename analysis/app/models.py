@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, Boolean, String, Float, DateTime
+from sqlalchemy import create_engine, ForeignKey, Column, Integer, Boolean, String, Float, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import func
@@ -33,14 +33,22 @@ class Volume(Base):
     __tablename__ = "volumes"
 
     id = Column(Integer, primary_key=True, index=True)
-    dateScanned = Column(DateTime(timezone=True), default=func.now())
+    dateAdded = Column(DateTime(timezone=True), default=func.now())
     name = Column(String)
-    mountPoint = Column(String) # /example/path
-    totalSize = Column(Float) #bytes
-    freeSpace = Column(Float) #bytes
-    usedSpace = Column(Float) #bytes
-    totalFiles = Column(Integer)
-    totalFolders = Column(Integer)
+    mountPoint = Column(String, nullable=True) # /example/path
+
+
+class VolumeStats(Base):
+    __tablename__ = "volume_stats"
+
+    id = Column(Integer, primary_key=True, index=True)
+    volumeId = Column(Integer, ForeignKey("volumes.id"))
+    dateScanned = Column(DateTime(timezone=True), default=func.now())
+    totalSize = Column(Float, nullable=True) #bytes
+    freeSpace = Column(Float, nullable=True) #bytes
+    usedSpace = Column(Float, nullable=True) #bytes
+    totalFiles = Column(Integer, nullable=True)
+    totalFolders = Column(Integer, nullable=True)
 
 Base.metadata.create_all(bind=engine)
 
@@ -63,6 +71,7 @@ class FileOut(FileCreate):
 class VolumeCreate(BaseModel):
     name: str
     mountPoint: str
+    dateScanned: Optional[datetime.datetime] = None
     totalSize: Optional[float] = None
     freeSpace: Optional[float] = None
     usedSpace: Optional[float] = None
@@ -71,7 +80,22 @@ class VolumeCreate(BaseModel):
 
 class VolumeOut(VolumeCreate):
     id: int
-    dateScanned: datetime.datetime
+    dateAdded: datetime.datetime
+
+    class Config:
+        orm_mode = True
+
+class VolumeStatsCreate(BaseModel):
+    volumeId: int
+    dateScanned: Optional[datetime.datetime] = None
+    totalSize: Optional[float] = None
+    freeSpace: Optional[float] = None
+    usedSpace: Optional[float] = None
+    totalFiles: Optional[int] = None
+    totalFolders: Optional[int] = None
+
+class VolumeStatsOut(VolumeStatsCreate):
+    id: int
 
     class Config:
         orm_mode = True

@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from models import SessionLocal, File, FileCreate, FileOut, Volume, VolumeCreate, VolumeOut
+from models import SessionLocal, File, FileCreate, FileOut, Volume, VolumeCreate, VolumeOut, VolumeStats, VolumeStatsCreate, VolumeStatsOut
+import os
 from modules.process import process_directory
 from datetime import datetime, timezone
 import uvicorn, logging
@@ -37,7 +38,7 @@ def read_file(id: int, db: Session = Depends(get_db)):
     return db_item
 
 @app.post("/volumes/", response_model=VolumeOut)
-def create_volume(item: FileCreate, db: Session = Depends(get_db)):
+def create_volume(item: VolumeCreate, db: Session = Depends(get_db)):
     db_item = Volume(**item.dict())
     db.add(db_item)
     db.commit()
@@ -55,6 +56,14 @@ def read_volume(id: int, db: Session = Depends(get_db)):
     if db_item is None:
         raise HTTPException(status_code=404, detail="Volume not found")
     return db_item
+
+@app.post("/volume_stats/", response_model=VolumeStats)
+def create_volume_stats(volume_stats: VolumeStats, db: Session = Depends(get_db)):
+    db_volume_stats = VolumeStats(**volume_stats.dict())
+    db.add(db_volume_stats)
+    db.commit()
+    db.refresh(db_volume_stats)
+    return db_volume_stats
 
 @app.get("/process/volume/{id}")
 def process_volume(id: int, db: Session = Depends(get_db)):
