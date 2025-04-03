@@ -1,0 +1,41 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    font-family: Arial, Helvetica, sans-serif;
+    transition: all 0.5s ease;
+}
+
+:root {
+    --background: #ffffff;
+    --foreground: whitesmoke;
+    --text: #171717;
+    --highlight: #8be08e;
+    --highlighthover: #75dd78;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #0a0a0a;
+        --foreground:  rgb(31,31,31);
+        --text: #ededed;
+        --highlight: #4CAF50;
+        --highlighthover: #41a645;
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+body {
+    color: var(--text);
+    background-color: var(--background);
+}
+
+#content {
+    height: calc(98vh - 10px);
+}
+#footer {
+    padding: 5px;
+    height: 1vh;
+}
