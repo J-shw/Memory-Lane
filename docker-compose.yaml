@@ -19,3 +19,9 @@ services:
     volumes:
       - /file/path/one:/volumes/one
       - /file/path/two:/volumes/two
+  web:
+    build: ./web
+    ports:
+      - "9091:9091"
+    depends_on:
+      - analysis
