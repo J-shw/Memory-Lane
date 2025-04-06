@@ -65,6 +65,18 @@ def create_volume_stats(volume_stats: VolumeStatsCreate, db: Session = Depends(g
     db.refresh(db_volume_stats)
     return db_volume_stats
 
+@app.get("/volume_stats/", response_model=list[VolumeStatsOut])
+def read_volume_stats(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    items = db.query(VolumeStats).offset(skip).limit(limit).all()
+    return items
+
+@app.get("/volume_stats/{id}", response_model=VolumeStatsOut)
+def read_volume_stat(id: int, db: Session = Depends(get_db)):
+    db_item = db.query(VolumeStats).filter(VolumeStats.id == id).first()
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="Volume not found")
+    return db_item
+
 @app.get("/process/volume/{id}")
 def process_volume(id: int, db: Session = Depends(get_db)):
     if id:
